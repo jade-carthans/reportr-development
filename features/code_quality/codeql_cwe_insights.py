@@ -3,6 +3,12 @@ import os
 import csv
 from collections import Counter, defaultdict
 
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
+from rich.markup import escape
+from rich.progress import Progress, SpinnerColumn, TextColumn
+
 def analyze_security_scan(scan_results):
     """Analyze security scan results and categorize issues by severity level."""
     summary = {
@@ -21,21 +27,45 @@ def analyze_security_scan(scan_results):
     return summary
 
 def enhance_with_cwe(scan_results, client=None):
+    console = Console()
     enhanced_results = []
-    for result in scan_results:
-        cwe_id = result.get("cwe_id")
-        cwe_info = CWE_INFO.get(cwe_id)
-        if cwe_info:
-            result["cwe_title"] = cwe_info["title"]
-            result["cwe_description"] = cwe_info["description"]
-            # Only generate remediation tip if client is provided
-            if client is not None:
-                result["remediation_tip"] = get_remediation_tip_llm(
-                    client, cwe_id, cwe_info["title"], cwe_info["description"]
-                )
-            else:
+    
+    if client and scan_results:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task("Enhancing scan results with CWE information...", total=None)
+            
+            for result in scan_results:
+                cwe_id = result.get("cwe_id")
+                cwe_info = CWE_INFO.get(cwe_id)
+                if cwe_info:
+                    result["cwe_title"] = cwe_info["title"]
+                    result["cwe_description"] = cwe_info["description"]
+                    # Only generate remediation tip if client is provided
+                    if client is not None:
+                        progress.update(task, description=f"Generating remediation tip for {cwe_id}...")
+                        result["remediation_tip"] = get_remediation_tip_llm(
+                            client, cwe_id, cwe_info["title"], cwe_info["description"]
+                        )
+                    else:
+                        result["remediation_tip"] = "No LLM client provided."
+                enhanced_results.append(result)
+            
+            progress.update(task, description="CWE enhancement complete!")
+    else:
+        # No progress needed for simple enhancement without LLM calls
+        for result in scan_results:
+            cwe_id = result.get("cwe_id")
+            cwe_info = CWE_INFO.get(cwe_id)
+            if cwe_info:
+                result["cwe_title"] = cwe_info["title"]
+                result["cwe_description"] = cwe_info["description"]
                 result["remediation_tip"] = "No LLM client provided."
-        enhanced_results.append(result)
+            enhanced_results.append(result)
+    
     return enhanced_results
 
 def generate_security_scan_summary(scan_results: list, client=None) -> dict:
@@ -117,62 +147,88 @@ CWE_TITLES = load_cwe_titles()
 CWE_INFO = load_cwe_info()
 
 def generate_codeql_cwe_insights(scan_results: list, client=None) -> str:
-    # Group by CWE
-    cwe_counter = Counter()
-    cwe_details = defaultdict(list)
-    severity_score_map = {"critical": 5, "high": 4, "medium": 3, "low": 2, "info": 1}
-    total_score = 0
+    console = Console()
+    
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Analyzing CodeQL scan results...", total=None)
+        
+        # Group by CWE
+        cwe_counter = Counter()
+        cwe_details = defaultdict(list)
+        severity_score_map = {"critical": 5, "high": 4, "medium": 3, "low": 2, "info": 1}
+        total_score = 0
 
-    for issue in scan_results:
-        cwe_id = issue.get("cwe_id", "Unknown")
-        cwe_counter[cwe_id] += 1
-        cwe_details[cwe_id].append(issue)
-        severity = issue.get("severity", "info").lower()
-        total_score += severity_score_map.get(severity, 1)
+        progress.update(task, description="Processing scan results...")
+        
+        for issue in scan_results:
+            cwe_id = issue.get("cwe_id", "Unknown")
+            cwe_counter[cwe_id] += 1
+            cwe_details[cwe_id].append(issue)
+            severity = issue.get("severity", "info").lower()
+            total_score += severity_score_map.get(severity, 1)
 
-    # Top 5 CWEs
-    top_cwes = cwe_counter.most_common(5)
+        # Top 5 CWEs
+        top_cwes = cwe_counter.most_common(5)
 
-    # Risk Score Calculation
-    max_score = len(scan_results) * max(severity_score_map.values()) if scan_results else 1
-    risk_percent = int((total_score / max_score) * 100)
-    if risk_percent >= 80:
-        risk_level = "🔥 High"
-    elif risk_percent >= 50:
-        risk_level = "🟠 Medium"
-    else:
-        risk_level = "🟢 Low"
+        progress.update(task, description="Calculating risk scores...")
+        
+        # Risk Score Calculation
+        max_score = len(scan_results) * max(severity_score_map.values()) if scan_results else 1
+        risk_percent = int((total_score / max_score) * 100)
+        if risk_percent >= 80:
+            risk_level = "🔥 High"
+        elif risk_percent >= 50:
+            risk_level = "🟠 Medium"
+        else:
+            risk_level = "🟢 Low"
 
-    # Executive Summary
-    exec_summary = (
-        f"Executive Summary:\n"
-        f"- Total findings: {len(scan_results)}\n"
-        f"- Unique CWEs: {len(cwe_counter)}\n"
-        f"- Top CWE: {top_cwes[0][0]} ({top_cwes[0][1]} findings)\n"
-        f"- Risk Score: {risk_level} ({risk_percent}%)"
-    ) if top_cwes else "No CWEs found."
+        # Executive Summary
+        exec_summary = (
+            f"[bold]Executive Summary:[/bold]\n"
+            f"• Total findings: {len(scan_results)}\n"
+            f"• Unique CWEs: {len(cwe_counter)}\n"
+            f"• Top CWE: [bright_cyan]{top_cwes[0][0]}[/bright_cyan] ({top_cwes[0][1]} findings)\n"
+            f"• Risk Score: {risk_level} ({risk_percent}%)"
+        ) if top_cwes else "No CWEs found."
 
-    # Build output
-    output = []
-    output.append("🧠 CodeQL CWE Insights\n" + "="*28)
-    output.append(exec_summary)
-    output.append("\nTop 5 Most Common CWEs:")
-    for cwe_id, count in top_cwes:
-        cwe_info = CWE_INFO.get(cwe_id, {})
-        title = cwe_info.get("title", cwe_id)
-        description = cwe_info.get("description", "")
-        # Optionally generate remediation tip with LLM if client is provided
-        remediation = ""
-        if client:
-            remediation = get_remediation_tip_cached(client, cwe_id, title, description)
-        output.append(
-            f"{cwe_id} ({title}) - {count} finding(s)\n"
-            f"   Description: {description}\n"
-            f"   Remediation: {remediation if remediation else 'See CWE documentation.'}\n"
-            f"   🔗 https://cwe.mitre.org/data/definitions/{cwe_id.split('-')[-1]}.html"
-        )
-    output.append(f"\nRisk Score: {risk_level} ({risk_percent}%)")
-    output.append("\nLegend: 🔴 High | 🟠 Medium | 🟡 Low | 🔵 Info")
+        progress.update(task, description="Generating detailed CWE insights...")
+        
+        # Build output
+        output = []
+        output.append("[bold bright_blue]🧠 CodeQL CWE Insights[/bold bright_blue]")
+        output.append("=" * 28)
+        output.append(exec_summary)
+        output.append("\n[bold]Top 5 Most Common CWEs:[/bold]")
+        
+        for i, (cwe_id, count) in enumerate(top_cwes):
+            cwe_info = CWE_INFO.get(cwe_id, {})
+            title = cwe_info.get("title", cwe_id)
+            description = cwe_info.get("description", "")
+            
+            # Optionally generate remediation tip with LLM if client is provided
+            remediation = ""
+            if client:
+                progress.update(task, description=f"Generating remediation tip for {cwe_id}...")
+                remediation = get_remediation_tip_cached(client, cwe_id, title, description)
+            
+            # Add spacing between CWE sections
+            if i > 0:
+                output.append("")
+            
+            output.append(
+                f"[bold bright_cyan]{cwe_id}[/bold bright_cyan] ([italic]{escape(title)}[/italic]) - {count} finding(s)\n"
+                f"   [bold]Description:[/bold] {escape(description)}\n"
+                f"   [bold]Remediation:[/bold] {escape(remediation if remediation else 'See CWE documentation.')}\n"
+                f"   [blue]🔗 https://cwe.mitre.org/data/definitions/{cwe_id.split('-')[-1]}.html[/blue]"
+            )
+        
+        output.append(f"\n[bold]Risk Score:[/bold] {risk_level} ({risk_percent}%)")
+        output.append("\n[bold]Legend:[/bold] 🔴 High | 🟠 Medium | 🟡 Low | 🔵 Info")
 
-    return "\n".join(output)
+        progress.update(task, description="CodeQL CWE insights complete!")
+        return "\n".join(output)
 
