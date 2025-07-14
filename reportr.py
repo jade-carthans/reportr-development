@@ -20,13 +20,11 @@ from functions.help_command import show_help
 
 from features.code_quality.llm_file_scan import create_llm_file_scan
 from features.code_quality.security_scan_summary import (
-    generate_security_scan_summary as summary_text,
+    generate_security_scan_summary,
 )
 from features.code_quality.codeql_cwe_insights import (
-    generate_security_scan_summary as summary_json,
+    generate_codeql_cwe_insights,
 )
-
-from features.code_quality.codeql_cwe_insights import generate_codeql_cwe_insights
 
 # load environment variables from .env file
 from dotenv import load_dotenv
@@ -225,10 +223,28 @@ def execute_features(args):
 
         with open(args.input) as f:
             raw = json.load(f)
+        
         # Convert dicts to SecurityScanResult objects
-        scan_results = [SecurityScanResult(**issue) for issue in raw]
-        summary = summary_text(scan_results)
-        results.append(("Security Scan Summary (Text)", summary))
+        # Handle both simple and complex input formats
+        scan_results = []
+        for issue in raw:
+            if isinstance(issue, dict):
+                # Extract required fields, provide defaults for missing ones
+                description = issue.get('description', issue.get('issue', 'Unknown issue'))
+                severity = issue.get('severity', 'Medium')
+                cwe_id = issue.get('cwe_id', issue.get('cwe', 'CWE-000'))
+                
+                scan_results.append(SecurityScanResult(
+                    description=description,
+                    severity=severity, 
+                    cwe_id=cwe_id
+                ))
+            else:
+                # Handle if it's already a SecurityScanResult object
+                scan_results.append(issue)
+        
+        summary = generate_security_scan_summary(scan_results)
+        results.append(("Security Scan Summary", summary))
 
     elif args.command == "codeql-cwe-summary":
         with open(args.input) as f:
