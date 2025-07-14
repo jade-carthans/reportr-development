@@ -207,6 +207,35 @@ def create_enhanced_analysis_overview(summary: Dict[str, List[SecurityScanResult
     output.append("=" * 45)
     output.append("")
     
+    # Add Severity Distribution Graph
+    output.append("📊 Severity Distribution")
+    output.append("-" * 30)
+    
+    # Calculate totals and percentages
+    total_issues = sum(len(issues) for issues in summary.values())
+    
+    if total_issues > 0:
+        severity_data = [
+            ("Critical", "🛑", len(summary.get("Critical", [])), "red"),
+            ("High", "🔴", len(summary.get("High", [])), "bright_red"),
+            ("Medium", "🟠", len(summary.get("Medium", [])), "yellow"),
+            ("Low", "🟡", len(summary.get("Low", [])), "bright_yellow"),
+            ("Info", "🔵", len(summary.get("Info", [])), "blue")
+        ]
+        
+        for severity, icon, count, color in severity_data:
+            percentage = (count / total_issues) * 100
+            bar_length = 20
+            filled_length = int(bar_length * percentage / 100)
+            bar = "█" * filled_length + "░" * (bar_length - filled_length)
+            
+            output.append(f"{icon} {severity:<8} {bar} {percentage:5.1f}% ({count}/{total_issues})")
+        
+        output.append("")
+    else:
+        output.append("No issues to display")
+        output.append("")
+    
     # Analyze findings and map to categories
     findings_analysis = analyze_security_findings(summary)
     

@@ -22,8 +22,8 @@ from features.code_quality.llm_file_scan import create_llm_file_scan
 from features.code_quality.security_scan_summary import (
     generate_security_scan_summary,
 )
-from features.code_quality.codeql_cwe_insights import (
-    generate_codeql_cwe_insights,
+from features.code_quality.security_vulnerability_analysis import (
+    generate_security_vulnerability_analysis,
 )
 
 # load environment variables from .env file
@@ -151,12 +151,12 @@ def parse_arguments():
         "--input", required=True, help="Path to a JSON file with scan results"
     )
 
-    # codeql-cwe-summary subcommand
-    # This command is for summarizing security scan results in JSON format
-    codeql_parser = subparsers.add_parser(
-        "codeql-cwe-summary", help="Summarize CodeQL scan results (JSON output)"
+    # security-vulnerability-analysis subcommand
+    # This command is for comprehensive security vulnerability analysis in JSON format
+    vuln_analysis_parser = subparsers.add_parser(
+        "security-vulnerability-analysis", help="Comprehensive security vulnerability analysis (JSON output)"
     )
-    codeql_parser.add_argument(
+    vuln_analysis_parser.add_argument(
         "--input", required=True, help="Path to a JSON file with scan results"
     )
 
@@ -246,11 +246,11 @@ def execute_features(args):
         summary = generate_security_scan_summary(scan_results)
         results.append(("Security Scan Summary", summary))
 
-    elif args.command == "codeql-cwe-summary":
+    elif args.command == "security-vulnerability-analysis":
         with open(args.input) as f:
             scan_results = json.load(f)
-        summary = generate_codeql_cwe_insights(scan_results, client)
-        results.append(("CodeQL CWE Insights", summary))
+        summary = generate_security_vulnerability_analysis(scan_results, client)
+        results.append(("Security Vulnerability Analysis", summary))
 
     return results
 
@@ -275,7 +275,7 @@ def main():
         "summarize-overview",
         "llm-file-scan",
         "security-scan-summary",
-        "codeql-cwe-summary",
+        "security-vulnerability-analysis",
     ]:
         console = Console()
 

@@ -16,7 +16,7 @@ def show_help():
     console.print("  [green]summarize-overview[/green] Repository overview")
     console.print("  [green]llm-file-scan[/green]          AI-powered security scan of code files or folders")
     console.print("  [green]security-scan-summary[/green]  Summarize security scan results by severity")
-    console.print("  [green]codeql-cwe-summary[/green]     Top CWEs, risk score, and executive summary from CodeQL results")
+    console.print("  [green]security-vulnerability-analysis[/green] Comprehensive security vulnerability analysis with risk scoring")
 
 
     # Examples
@@ -27,7 +27,7 @@ def show_help():
     console.print("  python reportr_client.py [sky_blue1]llm-file-scan[/sky_blue1] --files [white]file1.py file2.py[/white]")
     console.print("  python reportr_client.py [sky_blue1]llm-file-scan[/sky_blue1] --files [white]/path/to/dir[/white]")
     console.print("  python reportr_client.py [sky_blue1]security-scan-summary[/sky_blue1] --input [white]scan_results.json[/white]")
-    console.print("  python reportr_client.py [sky_blue1]codeql-cwe-summary[/sky_blue1] --input [white]codeql_results.json[/white]")
+    console.print("  python reportr_client.py [sky_blue1]security-vulnerability-analysis[/sky_blue1] --input [white]scan_results.json[/white]")
 
     # Options
     console.print("\n[bold]Common Options:[/bold]")

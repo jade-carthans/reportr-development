@@ -78,7 +78,7 @@ reportr/
    - `summarize-overview`: Repository overview
    - `llm-file-scan`: AI-powered security scan of code files or folders
    - `security-scan-summary`: Summarize security scan results by severity
-   - `codeql-cwe-summary`: Top CWEs, risk score, and executive summary from CodeQL results
+   - `security-vulnerability-analysis`: Comprehensive security vulnerability analysis with risk scoring and remediation tips
 
 
 ## Command Line Options
