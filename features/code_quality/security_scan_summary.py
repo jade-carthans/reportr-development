@@ -25,7 +25,7 @@ ANALYSIS_TYPES = {
         "priority": 2
     },
     "data_protection": {
-        "name": "Data Protection & Privacy",
+        "name": " Data Protection & Privacy",
         "icon": "🛡️", 
         "color": "green",
         "description": "PII handling, encryption, and privacy compliance issues",
@@ -152,7 +152,7 @@ def create_enhanced_analysis_overview(summary: Dict[str, List[SecurityScanResult
     
     # Main header
     output.append("")
-    output.append("🔍 Enhanced Security Analysis Types")
+    output.append("🔍 Security Category Analysis")
     output.append("=" * 50)
     output.append("")
     

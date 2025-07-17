@@ -1,0 +1,157 @@
+[
+  {
+    "severity": "critical",
+    "description": "Remote code execution via unsafe deserialization of user input.",
+    "cwe_id": "CWE-502"
+  },
+  {
+    "severity": "critical",
+    "description": "Improper authentication allows attackers to bypass login controls.",
+    "cwe_id": "CWE-287"
+  },
+  {
+    "severity": "critical",
+    "description": "Improper restriction of XML external entity reference (XXE) in XML parser.",
+    "cwe_id": "CWE-611"
+  },
+  {
+    "severity": "critical",
+    "description": "Improper privilege management allows elevation of user roles.",
+    "cwe_id": "CWE-269"
+  },
+  {
+    "severity": "critical",
+    "description": "Improper neutralization of input during web page generation (XSS) leading to full session hijack.",
+    "cwe_id": "CWE-79"
+  },
+  {
+    "severity": "critical",
+    "description": "Improper control of generation of code ('Code Injection') in dynamic script execution.",
+    "cwe_id": "CWE-94"
+  },
+  {
+    "severity": "high",
+    "description": "SQL injection vulnerability due to unsafe string formatting in SQL query.",
+    "cwe_id": "CWE-89"
+  },
+  {
+    "severity": "high",
+    "description": "Cross-site scripting (XSS) vulnerability due to unescaped user input rendered in HTML.",
+    "cwe_id": "CWE-79"
+  },
+  {
+    "severity": "high",
+    "description": "Hardcoded credentials expose sensitive information in source code.",
+    "cwe_id": "CWE-798"
+  },
+  {
+    "severity": "high",
+    "description": "Insecure direct object reference (IDOR) allows unauthorized access to user data.",
+    "cwe_id": "CWE-639"
+  },
+  {
+    "severity": "high",
+    "description": "Improper validation of certificate with host mismatch.",
+    "cwe_id": "CWE-297"
+  },
+  {
+    "severity": "high",
+    "description": "Improper neutralization of special elements used in an OS command (Command Injection).",
+    "cwe_id": "CWE-78"
+  },
+  {
+    "severity": "high",
+    "description": "Improper access control on admin endpoints allows privilege escalation.",
+    "cwe_id": "CWE-284"
+  },
+  {
+    "severity": "high",
+    "description": "Improper handling of file uploads allows arbitrary file write.",
+    "cwe_id": "CWE-434"
+  },
+  {
+    "severity": "high",
+    "description": "Use of broken or risky cryptographic algorithm (e.g., RC4).",
+    "cwe_id": "CWE-327"
+  },
+  {
+    "severity": "medium",
+    "description": "Use of weak cryptographic hash function MD5 for password hashing.",
+    "cwe_id": "CWE-327"
+  },
+  {
+    "severity": "medium",
+    "description": "Use of predictable random number generator for token generation.",
+    "cwe_id": "CWE-916"
+  },
+  {
+    "severity": "medium",
+    "description": "Missing rate limiting on login endpoint may allow brute-force attacks.",
+    "cwe_id": "CWE-307"
+  },
+  {
+    "severity": "medium",
+    "description": "Improper error handling reveals stack traces to users.",
+    "cwe_id": "CWE-209"
+  },
+  {
+    "severity": "medium",
+    "description": "Insufficient logging of security-relevant events.",
+    "cwe_id": "CWE-778"
+  },
+  {
+    "severity": "medium",
+    "description": "Improper input validation in file path handling.",
+    "cwe_id": "CWE-20"
+  },
+  {
+    "severity": "low",
+    "description": "Server version disclosure in HTTP response headers.",
+    "cwe_id": "CWE-200"
+  },
+  {
+    "severity": "low",
+    "description": "Verbose error messages reveal internal implementation details.",
+    "cwe_id": "CWE-209"
+  },
+  {
+    "severity": "low",
+    "description": "Deprecated API usage detected in legacy module.",
+    "cwe_id": "CWE-477"
+  },
+  {
+    "severity": "low",
+    "description": "Missing security headers (e.g., X-Content-Type-Options).",
+    "cwe_id": "CWE-693"
+  },
+  {
+    "severity": "low",
+    "description": "Unvalidated redirect allows phishing via crafted URLs.",
+    "cwe_id": "CWE-601"
+  },
+  {
+    "severity": "info",
+    "description": "Debug logging is enabled in production environment.",
+    "cwe_id": "CWE-117"
+  },
+  {
+    "severity": "info",
+    "description": "Unreferenced JavaScript file found in public directory.",
+    "cwe_id": "CWE-927"
+  },
+  {
+    "severity": "info",
+    "description": "Commented-out code contains sensitive information.",
+    "cwe_id": "CWE-615"
+  },
+  {
+    "severity": "info",
+    "description": "Unencrypted HTTP used for internal API calls.",
+    "cwe_id": "CWE-319"
+  },
+  {
+    "severity": "info",
+    "description": "Unused import statements found in multiple files.",
+    "cwe_id": "CWE-561"
+  }
+]
